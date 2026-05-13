@@ -10,11 +10,13 @@ use Livewire\Component;
 class ListAgenda extends Component
 {
     private function getDataForDataTable()
-    {
-        // Fetch all complaints from the database
+    {   
+        // Fetch all agendas from the database
         $agendas = Agenda::select(['id', 'nama', 'tanggal'])
             ->orderBy('id', 'desc')
             ->get();
+
+        // SELECT id, nama, tanggal FROM agenda ORDER BY id DESC
 
         // DataTable configuration
         $config = [];
@@ -23,7 +25,7 @@ class ListAgenda extends Component
         $formattedData = $agendas->map(function ($agenda) {
             // Define action buttons
             // Using Bootstrap button classes for styling
-            $btnEdit = '<a href="' . route('admin.baptis.edit', $agenda->id) . '">
+            $btnEdit = '<a href="' . route('admin.agenda.edit', $agenda->id) . '">
                     <button class="btn btn-xs btn-default text-teal mx-1 shadow" title="Edit">
                         <i class="fa fa-lg fa-fw fa-pen"></i>
                     </button>
@@ -39,7 +41,6 @@ class ListAgenda extends Component
 
             // Return the array for a single row
             return [
-                $agenda->id,
                 $agenda->nama,
                 $actionButtons,
             ];

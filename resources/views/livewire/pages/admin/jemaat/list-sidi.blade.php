@@ -1,6 +1,5 @@
 @php
     $heads = [
-        'ID',
         'Nama',
         ['label' => 'Actions', 'no-export' => true, 'width' => 5],
     ];

@@ -54,7 +54,6 @@ class ListPernikahan extends Component
 
             // Return the array for a single row
             return [
-                $jemaat->id,
                 $nama_pria,
                 $nama_wanita,
                 $actionButtons,

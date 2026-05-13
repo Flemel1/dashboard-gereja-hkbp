@@ -5,7 +5,9 @@
             <x-adminlte-input wire:model="judul" label="Judul" name="judul" type="text" error-key='judul'
                 placeholder="Masukkan Judul" />
 
-            <textarea id="editor" label="Deskripsi" name="deskripsi" type="text" placeholder="Masukkan Deskripsi"></textarea>
+            <div wire:ignore>
+                <textarea id="editor" label="Deskripsi" name="deskripsi" type="text" placeholder="Masukkan Deskripsi"></textarea>
+            </div>
 
             @error('deskripsi')
                 <span class="text-red">{{ $message }}</span>
@@ -52,6 +54,7 @@
 
                     editor.model.document.on('change:data', () => {
                         data = editor.getData()
+                        @this.set('deskripsi', data)
                     });
 
                 })
@@ -70,31 +73,6 @@
                 $('#toast-message').text(message);
                 $('.toast').toast('show');
             });
-
-            $wire.on('update-rich-text', (event) => {
-                const judul = @this.get('judul')
-                const tanggal = @this.get('tanggal')
-
-                if (data && judul && tanggal) {
-                    @this.set('deskripsi', data)
-                    $wire.dispatch('save')
-                    data = null
-                }
-
-                if (!data) {
-                    ClassicEditor
-                        .create(document.querySelector('#editor'))
-                        .then(editor => {
-                            // Update Livewire property on editor change
-                            editor.model.document.on('change:data', () => {
-                                data = editor.getData()
-                            });
-                        })
-                        .catch(error => {
-                            console.error(error);
-                        });
-                }
-            })
         </script>
     @endscript
 

@@ -30,8 +30,8 @@ return [
     |
     */
 
-    'use_ico_only' => false,
-    'use_full_favicon' => false,
+    'use_ico_only' => true,
+    'use_full_favicon' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -63,8 +63,8 @@ return [
     |
     */
 
-    'logo' => '<b>Admin</b>LTE',
-    'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
+    'logo' => '<b>HKBP</b>',
+    'logo_img' => 'assets/image/logohkbp.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
@@ -113,7 +113,7 @@ return [
         'enabled' => true,
         'mode' => 'fullscreen',
         'img' => [
-            'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
+            'path' => 'assets/image/logohkbp.png',
             'alt' => 'AdminLTE Preloader Image',
             'effect' => 'animation__shake',
             'width' => 60,
@@ -348,6 +348,12 @@ return [
                     'icon' => 'fas fa-fw fa-list',
                     'active' => ['admin/kehadiran', 'admin/kehadiran/*'],
                 ],
+                [
+                    'text' => 'Wilayah',
+                    'url' => 'admin/wilayah',
+                    'icon' => 'fas fa-fw fa-list',
+                    'active' => ['admin/wilayah', 'admin/wilayah/*'],
+                ],
             ],
         ],
         [
@@ -362,6 +368,24 @@ return [
                     'active' => ['admin/renungan', 'admin/renungan/*'],
                 ],
                 [
+                    'text' => 'Kegiatan',
+                    'url' => 'admin/kegiatan',
+                    'icon' => 'fas fa-fw fa-list',
+                    'active' => ['admin/kegiatan', 'admin/kegiatan/*'],
+                ],
+                [
+                    'text' => 'Staff',
+                    'url' => 'admin/staff',
+                    'icon' => 'fas fa-fw fa-list',
+                    'active' => ['admin/staff', 'admin/staff/*'],
+                ],
+                [
+                    'text' => 'Galeri',
+                    'url' => 'admin/galeri',
+                    'icon' => 'fas fa-fw fa-list',
+                    'active' => ['admin/galeri', 'admin/galeri/*'],
+                ],
+                [
                     'text' => 'Agenda',
                     'url' => 'admin/agenda',
                     'icon' => 'fas fa-fw fa-list',
@@ -369,17 +393,6 @@ return [
                 ],
             ]
         ]
-        // ['header' => 'Keuangan'],
-        // [
-        //     'text' => 'Pendapatan',
-        //     'url' => 'admin/settings',
-        //     'icon' => 'fas fa-fw fa-user',
-        // ],
-        // [
-        //     'text' => 'Pengeluaran',
-        //     'url' => 'admin/settings',
-        //     'icon' => 'fas fa-fw fa-lock',
-        // ],
     ],
 
     /*

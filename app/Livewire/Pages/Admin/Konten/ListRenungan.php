@@ -23,7 +23,7 @@ class ListRenungan extends Component
         $formattedData = $renungans->map(function ($renungan) {
             // Define action buttons
             // Using Bootstrap button classes for styling
-            $btnEdit = '<a href="' . route('admin.baptis.edit', $renungan->id) . '">
+            $btnEdit = '<a href="' . route('admin.renungan.edit', $renungan->id) . '">
                     <button class="btn btn-xs btn-default text-teal mx-1 shadow" title="Edit">
                         <i class="fa fa-lg fa-fw fa-pen"></i>
                     </button>
@@ -39,7 +39,6 @@ class ListRenungan extends Component
 
             // Return the array for a single row
             return [
-                $renungan->id,
                 $renungan->judul,
                 $actionButtons,
             ];

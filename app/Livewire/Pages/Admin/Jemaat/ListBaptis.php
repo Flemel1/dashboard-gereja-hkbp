@@ -38,7 +38,7 @@ class ListBaptis extends Component
             $actionButtons = '<nobr>' . $btnEdit . $btnDelete . '</nobr>';
 
             $nama = '';
-
+            
             if ($jemaat->jemaat) {
                 $nama = $jemaat->jemaat->nama;
             } else {
@@ -47,7 +47,6 @@ class ListBaptis extends Component
 
             // Return the array for a single row
             return [
-                $jemaat->id,
                 $nama,
                 $actionButtons,
             ];

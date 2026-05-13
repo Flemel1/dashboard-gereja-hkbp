@@ -21,13 +21,28 @@
             <x-adminlte-input wire:model.lazy="no_telepon" label="No. Telepon" name="no_telepon" type="text"
                 error-key='no_telepon' placeholder="Masukkan No. Telepon Jemaat" />
 
+            <x-adminlte-select wire:model.lazy="wilayah_id" label="Nama Wilayah" name="wilayah_id"
+                error-key='wilayah_id'>
+                <option value="">Pilih Wilayah</option>
+                @foreach ($wilayahs as $id => $name)
+                    <option value="{{ $id }}">{{ $name }}</option>
+                @endforeach
+
+            </x-adminlte-select>
+
+            <x-adminlte-input wire:model.lazy="tanggal_baptis" label="Tanggal Baptis" name="tanggal_baptis"
+                type="date" error-key='tanggal_baptis' placeholder="Pilih Tanggal Baptis" />
+
+            <x-adminlte-input wire:model.lazy="tanggal_sidi" label="Tanggal Sidi" name="tanggal_sidi" type="date"
+                error-key='tanggal_sidi' placeholder="Pilih Tanggal Sidi" />
+
             <x-adminlte-button class="btn-flat" type="submit" label="Simpan" theme="success"
                 icon="fas fa-lg fa-save" />
         </form>
     </div>
 
-    <div wire:ignore style="position: absolute; top: 0; right: 0; width: 300px;" class="toast" role="alert" aria-live="assertive"
-        aria-atomic="true" data-delay="3000">
+    <div wire:ignore style="position: absolute; top: 0; right: 0; width: 300px;" class="toast" role="alert"
+        aria-live="assertive" aria-atomic="true" data-delay="3000">
         <div class="toast-header">
             <strong id="toast-title" class="mr-auto"></strong>
             <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">

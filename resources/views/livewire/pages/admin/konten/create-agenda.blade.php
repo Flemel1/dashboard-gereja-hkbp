@@ -1,11 +1,13 @@
 <div class="card">
-    <div class="card-header">Tambah Agenda</div>
+    <div class="card-header">Tambah Kegiatan</div>
     <div class="card-body">
         <form wire:submit.prevent="save">
             <x-adminlte-input wire:model="nama" label="Nama" name="nama" type="text" error-key='nama'
                 placeholder="Masukkan Nama" />
 
-            <textarea id="editor" label="Deskripsi" name="deskripsi" type="text" placeholder="Masukkan Deskripsi"></textarea>
+            <div wire:ignore>
+                <textarea id="editor" label="Deskripsi" name="deskripsi" type="text" placeholder="Masukkan Deskripsi"></textarea>
+            </div>
 
             @error('deskripsi')
                 <span class="text-red">{{ $message }}</span>
@@ -17,11 +19,13 @@
             <x-adminlte-input wire:model="tanggal" label="Tanggal" name="tanggal" type="date" error-key='tanggal'
                 placeholder="Pilih Tanggal" />
 
-            <input type="file" wire:model="thumbnail">
+            <div class="mb-2">
+                <input type="file" wire:model="thumbnail">
 
-            @error('thumbnail')
-                <span class="error">{{ $message }}</span>
-            @enderror
+                @error('thumbnail')
+                    <span class="error">{{ $message }}</span>
+                @enderror
+            </div>
 
             <x-adminlte-button class="btn-flat" type="submit" label="Simpan" theme="success"
                 icon="fas fa-lg fa-save" />
@@ -55,6 +59,7 @@
 
                     editor.model.document.on('change:data', () => {
                         data = editor.getData()
+                        @this.set('deskripsi', data)
                     });
 
                 })
@@ -73,32 +78,6 @@
                 $('#toast-message').text(message);
                 $('.toast').toast('show');
             });
-
-            $wire.on('update-rich-text', (event) => {
-                const nama = @this.get('nama')
-                const tanggal = @this.get('tanggal')
-                const lokasi = @this.get('lokasi')
-
-                if (data && nama && tanggal && lokasi) {
-                    @this.set('deskripsi', data)
-                    $wire.dispatch('save')
-                    data = null
-                }
-
-                if (!data) {
-                    ClassicEditor
-                        .create(document.querySelector('#editor'))
-                        .then(editor => {
-                            // Update Livewire property on editor change
-                            editor.model.document.on('change:data', () => {
-                                data = editor.getData()
-                            });
-                        })
-                        .catch(error => {
-                            console.error(error);
-                        });
-                }
-            })
         </script>
     @endscript
 

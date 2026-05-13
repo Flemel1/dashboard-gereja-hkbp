@@ -24,7 +24,7 @@ class Agenda extends Component
         $total_record = AgendaModel::count();
         $this->start = ($this->current_page - 1) * $this->record_per_page;
         $this->total_page = ceil($total_record / $this->record_per_page);
-        $this->agendas = AgendaModel::skip($this->start)->take($this->record_per_page)->get();
+        $this->agendas = AgendaModel::orderBy('id', 'desc')->skip($this->start)->take($this->record_per_page)->get();
     }
 
 

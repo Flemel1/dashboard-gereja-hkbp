@@ -50,7 +50,6 @@ class CreateRenungan extends Component
     ])]
     public $thumbnail;
 
-    #[On('save')]
     public function save()
     {
         $this->dispatch('update-rich-text');

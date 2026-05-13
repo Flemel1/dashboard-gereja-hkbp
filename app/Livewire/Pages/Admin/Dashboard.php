@@ -2,17 +2,53 @@
 
 namespace App\Livewire\Pages\Admin;
 
+use App\Models\Jemaat;
 use App\Models\Kehadiran;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Dashboard extends Component
 {
+    public $birthdayJemaats;
+
+    public $selectedYearMonthChart;
+    public $selectedYearWeekChart;
+    public $selectedMonthWeekChart;
+
+    public function mount()
+    {
+        $today = Carbon::now();
+
+        $this->birthdayJemaats = Jemaat::whereMonth('tanggal_lahir', $today->month)
+            ->whereDay('tanggal_lahir', $today->day)
+            ->get();
+
+        // Initialize filters with current date
+        $this->selectedYearMonthChart = $today->year;
+        $this->selectedYearWeekChart = $today->year;
+        $this->selectedMonthWeekChart = $today->month;
+    }
+
+    public function updatedSelectedYearMonthChart()
+    {
+        $this->dispatch('update-chart-month', data: $this->getChartDataGroupByMonth());
+    }
+
+    public function updatedSelectedYearWeekChart()
+    {
+        $this->dispatch('update-chart-week', data: $this->getChartDataGroupByWeek());
+    }
+
+    public function updatedSelectedMonthWeekChart()
+    {
+        $this->dispatch('update-chart-week', data: $this->getChartDataGroupByWeek());
+    }
+
     public function getChartDataGroupByMonth()
     {
-
-        $current_year = now()->year;
+        $year = $this->selectedYearMonthChart;
 
         $attendance_by_month = [];
         for ($i = 1; $i <= 12; $i++) {
@@ -21,9 +57,9 @@ class Dashboard extends Component
 
         $attendance_data = Kehadiran::select(
             DB::raw('MONTH(tanggal) as month'),
-            DB::raw('SUM(jumlah_hadir) as total')
+            DB::raw('AVG(jumlah_hadir) as total')
         )
-            ->whereYear('tanggal', $current_year)
+            ->whereYear('tanggal', $year)
             ->groupBy('month')
             ->orderBy('month', 'asc')
             ->get()
@@ -38,7 +74,7 @@ class Dashboard extends Component
 
         $labels = [];
         for ($i = 1; $i <= 12; $i++) {
-            $labels[] = Carbon::create()->month($i)->format('M');
+            $labels[] = Carbon::create($year, $i, 1)->translatedFormat('M');
         }
 
         $data = array_values($attendance_by_month);
@@ -51,27 +87,24 @@ class Dashboard extends Component
 
     public function getChartDataGroupByWeek()
     {
-
-        $current_date = Carbon::now();
-        $start_of_month = $current_date->copy()->startOfMonth();
-        $end_of_month = $current_date->copy()->endOfMonth();
+        $start_of_month = Carbon::create($this->selectedYearWeekChart, $this->selectedMonthWeekChart, 1)->startOfMonth();
+        $end_of_month = $start_of_month->copy()->endOfMonth();
 
 
         $week_template = [];
-        $date = $start_of_month->copy();
-        while ($date->lte($end_of_month)) {
-            $week_start = $date->copy()->startOfWeek()->format('Y-m-d');
-            $week_template[$week_start] = 0;
+        $current_week_start = $start_of_month->copy()->startOfWeek(Carbon::SUNDAY);
 
-            $date->addWeek();
+        while ($current_week_start->lte($end_of_month)) {
+            $week_template[$current_week_start->format('Y-m-d')] = 0;
+            $current_week_start->addWeek();
         }
 
-
-        $week_start_expression = DB::raw('DATE_SUB(tanggal, INTERVAL WEEKDAY(tanggal) DAY) as week_start');
+        // Using DAYOFWEEK: 1=Sun, 2=Mon... Subtracting (DAYOFWEEK - 1) days always points to the preceding Sunday
+        $week_start_expression = DB::raw('DATE_SUB(tanggal, INTERVAL (DAYOFWEEK(tanggal) - 1) DAY) as week_start');
 
         $attendance_data = Kehadiran::select(
             $week_start_expression,
-            DB::raw('SUM(jumlah_hadir) as total')
+            DB::raw('AVG(jumlah_hadir) as total')
         )
             ->whereBetween('tanggal', [$start_of_month, $end_of_month])
             ->groupBy('week_start')
@@ -89,13 +122,10 @@ class Dashboard extends Component
 
 
         $labels = [];
-        foreach (array_keys($week_template) as $index => $week_start_string) {
-            if ($index === 0) {
-                continue;
-            }
-            $labels[] = 'Minggu ke-' . $index;
+        $week_index = 1;
+        foreach ($week_template as $total) {
+            $labels[] = 'Minggu ke-' . $week_index++;
         }
-
 
         $data = array_values($week_template);
 
@@ -106,49 +136,21 @@ class Dashboard extends Component
         ];
     }
 
-
-
-    public function getBirthdayDataGroupByWeek()
+    #[On('change-birthday-range')]
+    public function filterJemaatByBirthday($startDate, $endDate)
     {
 
-        // 1. Set the target month. Default to the current month if none is provided.
-        $targetMonth =  now()->month;
-        $monthName = Carbon::create()->month($targetMonth)->format('F');
+        $from = Carbon::parse($startDate);
+        $to = Carbon::parse($endDate);
 
-        // 2. Perform the database query.
-        $birthdayCounts = DB::table('jemaats')
-            ->select(
-                DB::raw('COUNT(*) as total_jemaats'),
-                DB::raw('CEIL(DAY(tanggal_lahir) / 7) as week_of_month')
-            )
-            ->whereMonth('tanggal_lahir', $targetMonth)
-            ->groupBy('week_of_month')
-            ->orderBy('week_of_month', 'asc')
-            ->get()
-            ->keyBy('week_of_month'); // keyBy makes it easy to look up week numbers
+        $startMonthDay = $from->format('m-d');
+        $endMonthDay = $to->format('m-d');
 
-        $weeks = [
-            '1' => $birthdayCounts->get(1)->total_jemaats ?? 0,
-            '2' => $birthdayCounts->get(2)->total_jemaats ?? 0,
-            '3' => $birthdayCounts->get(3)->total_jemaats ?? 0,
-            '4' => $birthdayCounts->get(4)->total_jemaats ?? 0,
-        ];
-        $week_fifth = $birthdayCounts->get(5)->total_jemaats ?? 0;
-        $weeks['4'] = $weeks['4'] + $week_fifth;
-
-        $labels = [];
-        $data = [];
-
-        foreach ($weeks as $key => $value) {
-
-            $labels[] = 'Minggu ke-' . $key;
-            $data[] = $value;
+        if ($startMonthDay <= $endMonthDay) {
+            $this->birthdayJemaats = Jemaat::whereRaw("DATE_FORMAT(tanggal_lahir, '%m-%d') BETWEEN ? AND ?", [$startMonthDay, $endMonthDay])->get();
+        } else {
+            $this->birthdayJemaats = Jemaat::whereRaw("(DATE_FORMAT(tanggal_lahir, '%m-%d') >= ? OR DATE_FORMAT(tanggal_lahir, '%m-%d') <= ?)", [$startMonthDay, $endMonthDay])->get();
         }
-
-        return [
-            'labels' => $labels,
-            'data' => $data,
-        ];
     }
 
     public function render()
@@ -156,11 +158,9 @@ class Dashboard extends Component
 
         $chart_attendance_data_by_month = $this->getChartDataGroupByMonth();
         $chart_attendance_data_by_week = $this->getChartDataGroupByWeek();
-        $chart_birthday_data_by_month_week = $this->getBirthdayDataGroupByWeek();
         return view('livewire.pages.admin.dashboard', compact(
             'chart_attendance_data_by_month',
             'chart_attendance_data_by_week',
-            'chart_birthday_data_by_month_week'
         ));
     }
 }

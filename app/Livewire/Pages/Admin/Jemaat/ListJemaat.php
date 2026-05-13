@@ -12,10 +12,11 @@ class ListJemaat extends Component
     private function getDataForDataTable()
     {
         // Fetch all complaints from the database
-        $jemaats = Jemaat::select(['id', 'nama', 'created_at'])
+        $jemaats = Jemaat::select(['id', 'nama', 'created_at', 'wilayah_id'])
+            ->with(['wilayah'])
             ->orderBy('created_at', 'desc')
             ->get();
-
+        
         // DataTable configuration
         $config = [];
 
@@ -36,10 +37,16 @@ class ListJemaat extends Component
             // Combine buttons into a single string with <nobr> to prevent wrapping
             $actionButtons = '<nobr>' . $btnEdit . $btnDelete . '</nobr>';
 
+            $namaWilayah = null;
+
+            if ($jemaat->wilayah) {
+                $namaWilayah = $jemaat->wilayah->nama;
+            }
+
             // Return the array for a single row
             return [
-                $jemaat->id,
                 $jemaat->nama,
+                $namaWilayah,
                 $actionButtons,
             ];
         });

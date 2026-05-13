@@ -1,7 +1,7 @@
 @php
     $heads = [
-        'ID',
         'Nama',
+        'Wilayah',
         ['label' => 'Actions', 'no-export' => true, 'width' => 5],
     ];
 @endphp

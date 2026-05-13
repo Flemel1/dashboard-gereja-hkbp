@@ -2,14 +2,21 @@
 
 namespace App\Livewire\Pages\Admin\Jemaat;
 
+use App\Models\Baptis;
 use App\Models\Jemaat;
+use App\Models\Sidi;
+use App\Models\Wilayah;
 use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 class CreateJemaat extends Component
 {
+    public $wilayah_id;
+
     #[Validate([
         'nama' => 'required|string|max:100'
     ], message: [
@@ -54,18 +61,69 @@ class CreateJemaat extends Component
     ])]
     public $no_telepon;
 
+    #[Validate([
+        'tanggal_sidi' => 'nullable|date'
+    ], message: [
+        'tanggal_sidi.date' => 'Tanggal Sidi harus berupa tanggal yang valid.'
+    ])]
+    public $tanggal_sidi;
+
+    #[Validate([
+        'tanggal_baptis' => 'nullable|date'
+    ], message: [
+        'tanggal_baptis.date' => 'Tanggal Baptis harus berupa tanggal yang valid.'
+    ])]
+    public $tanggal_baptis;
+
+    public function rules(): array
+    {
+        return [
+            'wilayah_id' => [
+                'required',
+                'string',
+                Rule::in(Wilayah::pluck('id')->toArray()),
+            ],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'wilayah_id.required' => 'Wilayah harus dipilih',
+            'wilayah_id.in' => 'Wilayah yang dipilih tidak ditemukan.'
+        ];
+    }
+
     public function save()
     {
         $this->validate();
 
         try {
-            $jemaat = new Jemaat();
-            $jemaat->nama = $this->nama;
-            $jemaat->alamat = $this->alamat;
-            $jemaat->jenis_kelamin = $this->jenis_kelamin; 
-            $jemaat->tanggal_lahir = $this->tanggal_lahir;
-            $jemaat->no_telepon = $this->no_telepon;
-            $jemaat->save();
+            DB::transaction(function () {
+                $jemaat = new Jemaat();
+                $jemaat->nama = $this->nama;
+                $jemaat->alamat = $this->alamat;
+                $jemaat->jenis_kelamin = $this->jenis_kelamin;
+                $jemaat->tanggal_lahir = $this->tanggal_lahir;
+                $jemaat->no_telepon = $this->no_telepon;
+                $jemaat->wilayah_id = $this->wilayah_id;
+                $jemaat->save();
+
+                if ($this->tanggal_baptis) {
+                    $baptis = new Baptis();
+                    $baptis->nama_baptis = "-";
+                    $baptis->tanggal_baptis = $this->tanggal_baptis;
+                    $baptis->jemaat_id = $jemaat->id;
+                    $baptis->save();
+                }
+
+                if ($this->tanggal_sidi) {
+                    $sidi = new Sidi();
+                    $sidi->tanggal_sidi = $this->tanggal_sidi;
+                    $sidi->jemaat_id = $jemaat->id;
+                    $sidi->save();
+                }
+            }, 2);
 
             $this->dispatch('jemaat-saved', [
                 'title' => 'Sukses',
@@ -85,6 +143,7 @@ class CreateJemaat extends Component
 
     public function render()
     {
-        return view('livewire.pages.admin.jemaat.create-jemaat');
+        $wilayahs = Wilayah::pluck('nama', 'id');
+        return view('livewire.pages.admin.jemaat.create-jemaat', compact('wilayahs'));
     }
 }

@@ -6,38 +6,13 @@
                 error-key='jemaat_id'>
                 <option value="">Pilih Jemaat</option>
                 @foreach ($jemaats as $id => $name)
-                    @if ($loop->first)
-                        <option value="new">Tambah Jemaat Baru</option>
-                    @endif
                     <option value="{{ $id }}">{{ $name }}</option>
                 @endforeach
 
             </x-adminlte-select>
 
-            <x-adminlte-input wire:model.lazy="tanggal_sidi" label="Tanggal Sidi" name="tanggal_sidi"
-                type="date" error-key='tanggal_sidi' placeholder="Pilih Tanggal Sidi" />
-
-
-            @if ($jemaat_id === 'new')
-                <x-adminlte-input wire:model.lazy="nama" label="Nama Jemaat Baru" name="nama" type="text"
-                    error-key='nama' placeholder="Masukkan Nama Jemaat" />
-
-                <x-adminlte-textarea wire:model.lazy="alamat" label="Alamat" name="alamat" error-key='alamat'
-                    placeholder="Masukkan Alamat Jemaat" />
-
-                <x-adminlte-select wire:model.lazy="jenis_kelamin" label="Jenis Kelamin" name="jenis_kelamin"
-                    error-key='jenis_kelamin'>
-                    <option value="">Pilih Jenis Kelamin</option>
-                    <option value="pria">Laki-Laki</option>
-                    <option value="wanita">Perempuan</option>
-                </x-adminlte-select>
-
-                <x-adminlte-input wire:model.lazy="tanggal_lahir" label="Tanggal Lahir" name="tanggal_lahir"
-                    type="date" error-key='tanggal_lahir' placeholder="Pilih Tanggal Lahir" />
-
-                <x-adminlte-input wire:model.lazy="no_telepon" label="No. Telepon" name="no_telepon" type="text"
-                    error-key='no_telepon' placeholder="Masukkan No. Telepon Jemaat" />
-            @endif
+            <x-adminlte-input wire:model.lazy="tanggal_sidi" label="Tanggal Sidi" name="tanggal_sidi" type="date"
+                error-key='tanggal_sidi' placeholder="Pilih Tanggal Sidi" />
 
             <x-adminlte-button class="btn-flat" type="submit" label="Simpan" theme="success"
                 icon="fas fa-lg fa-save" />

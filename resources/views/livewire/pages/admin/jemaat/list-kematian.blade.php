@@ -1,5 +1,5 @@
 @php
-    $heads = ['ID', 'Nama', ['label' => 'Actions', 'no-export' => true, 'width' => 5]];
+    $heads = ['Nama', ['label' => 'Actions', 'no-export' => true, 'width' => 5]];
 @endphp
 
 <div class="card">

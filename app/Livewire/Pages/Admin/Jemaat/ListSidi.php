@@ -46,7 +46,6 @@ class ListSidi extends Component
 
             // Return the array for a single row
             return [
-                $jemaat->id,
                 $nama,
                 $actionButtons,
             ];

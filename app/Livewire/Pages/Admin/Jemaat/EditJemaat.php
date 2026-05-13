@@ -2,8 +2,13 @@
 
 namespace App\Livewire\Pages\Admin\Jemaat;
 
+use App\Models\Baptis;
 use App\Models\Jemaat;
+use App\Models\Sidi;
+use App\Models\Wilayah;
 use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -11,6 +16,8 @@ use Livewire\Component;
 class EditJemaat extends Component
 {
     public Jemaat $jemaat;
+
+    public $wilayah_id;
 
     #[Validate([
         'nama' => 'required|string|max:100'
@@ -56,28 +63,108 @@ class EditJemaat extends Component
     ])]
     public $no_telepon;
 
+    #[Validate([
+        'tanggal_sidi' => 'nullable|date'
+    ], message: [
+        'tanggal_sidi.date' => 'Tanggal Sidi harus berupa tanggal yang valid.'
+    ])]
+    public $tanggal_sidi;
+
+    #[Validate([
+        'tanggal_baptis' => 'nullable|date'
+    ], message: [
+        'tanggal_baptis.date' => 'Tanggal Baptis harus berupa tanggal yang valid.'
+    ])]
+    public $tanggal_baptis;
+
+    public function rules(): array
+    {
+        return [
+            'wilayah_id' => [
+                'required',
+                'string',
+                Rule::in(Wilayah::pluck('id')->toArray()),
+            ],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'wilayah_id.required' => 'Wilayah harus dipilih',
+            'wilayah_id.in' => 'Wilayah yang dipilih tidak ditemukan.'
+        ];
+    }
+
     public function mount(Jemaat $jemaat)
     {
         $this->jemaat = $jemaat;
+
+        $baptis = Baptis::where('jemaat_id', $jemaat->id)->first();
+        $sidi = Sidi::where('jemaat_id', $jemaat->id)->first();
+
         $this->nama = $jemaat->nama;
         $this->alamat = $jemaat->alamat;
         $this->jenis_kelamin = $jemaat->jenis_kelamin;
         $this->tanggal_lahir = $jemaat->tanggal_lahir;
         $this->no_telepon = $jemaat->no_telepon;
+        $this->wilayah_id = $jemaat->wilayah_id;
+
+        if ($baptis) {
+            $this->tanggal_baptis = $baptis->tanggal_baptis;
+        }
+
+        if ($sidi) {
+            $this->tanggal_sidi = $sidi->tanggal_sidi;
+        }
     }
 
     public function update()
     {
         $this->validate();
-
+      
         try {
-            $jemaat = $this->jemaat;
-            $jemaat->nama = $this->nama;
-            $jemaat->alamat = $this->alamat;
-            $jemaat->jenis_kelamin = $this->jenis_kelamin; 
-            $jemaat->tanggal_lahir = $this->tanggal_lahir;
-            $jemaat->no_telepon = $this->no_telepon;
-            $jemaat->save();
+            DB::transaction(function () {
+                $jemaat = $this->jemaat;
+                $jemaat->nama = $this->nama;
+                $jemaat->alamat = $this->alamat;
+                $jemaat->jenis_kelamin = $this->jenis_kelamin;
+                $jemaat->tanggal_lahir = $this->tanggal_lahir;
+                $jemaat->no_telepon = $this->no_telepon;
+                $jemaat->wilayah_id = $this->wilayah_id;
+                $jemaat->save();
+
+                if ($this->tanggal_baptis) {
+                    $baptis = Baptis::where('jemaat_id', $jemaat->id)->first();
+
+                    if ($baptis) {
+                        $baptis->tanggal_baptis = $this->tanggal_baptis;
+
+                        $baptis->save();
+                    } else {
+                        $newBaptis = new Baptis();
+                        $newBaptis->nama_baptis = "-";
+                        $newBaptis->tanggal_baptis = $this->tanggal_baptis;
+                        $newBaptis->jemaat_id = $jemaat->id;
+                        $newBaptis->save();
+                    }
+                }
+
+                if ($this->tanggal_sidi) {
+                    $sidi = Sidi::where('jemaat_id', $jemaat->id)->first();
+
+                    if ($sidi) {
+                        $sidi->tanggal_sidi = $this->tanggal_sidi;
+
+                        $sidi->save();
+                    } else {
+                        $newSidi = new Sidi();
+                        $newSidi->tanggal_sidi = $this->tanggal_sidi;
+                        $newSidi->jemaat_id = $jemaat->id;
+                        $newSidi->save();
+                    }
+                }
+            });
 
             $this->dispatch('jemaat-updated', [
                 'title' => 'Sukses',
@@ -95,6 +182,7 @@ class EditJemaat extends Component
 
     public function render()
     {
-        return view('livewire.pages.admin.jemaat.edit-jemaat');
+        $wilayahs = Wilayah::pluck('nama', 'id');
+        return view('livewire.pages.admin.jemaat.edit-jemaat', compact('wilayahs'));
     }
 }

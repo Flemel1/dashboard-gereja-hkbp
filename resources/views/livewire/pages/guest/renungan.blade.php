@@ -14,20 +14,19 @@
 @endphp
 
 <div class="container">
-    <!-- news -->
-    <section class="news" id="news">
+    <!-- renungan -->
+    <section class="my-4" id="renungan">
         <div class="row justify-content-center body">
             <div class="col-lg-11 news-primary">
                 @foreach ($renungans as $renungan)
                     <div class="row mb-5">
                         <div class="col-lg-5">
                             <div class="border border-2">
-                                <img src="{{ asset("storage/$renungan->thumbnail") }}" width="100%"
-                                    class="p-4" />
+                                <img src="{{ asset("storage/$renungan->thumbnail") }}" width="100%" class="p-4" />
                             </div>
                         </div>
                         <div class="col-lg-7">
-                            <a href="#">{{ $renungan->judul }}</a>
+                            <a class="text-black fw-bold text-decoration-none" href="{{ route('renungan.detail', $renungan) }}">{{ $renungan->judul }}</a>
                             @php
                                 $excerpt = createExcerpt($renungan->deskripsi, 250);
                             @endphp
@@ -46,38 +45,49 @@
                                     </g>
                                 </svg>
                                 <span class="ms-2">{{ $renungan->tanggal }}</span>
-                                <p class="mt-3"><i class="fa-solid fa-circle-user me-2"></i> Admin Perpustakan</p>
+                                <p class="mt-3"><i class="fa-solid fa-circle-user me-2"></i> Admin HKBP</p>
                             </div>
                         </div>
                     </div>
                 @endforeach
             </div>
-        </div>
 
-        <div class="row justify-content-center mt-5">
-            <div class="col-sm-8 text-center">
-                <nav>
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item @if ($current_page == 1) disabled @endif">
-                            <a class="page-link page-icon m-2"
-                                href="{{ route('renungan') }}?page={{ $current_page - 1 }}"><i
-                                    class="fa-solid fa-angle-left"></i></a>
-                        </li>
-                        @for ($i = 1; $i <= $total_page; $i++)
-                            <li class="page-item">
-                                <a class="page-link m-2 @if ($i == $current_page) active @endif"
-                                    href="{{ route('renungan') }}?page={{ $i }}">{{ $i }}</a>
+            <div class="row justify-content-center mt-5">
+                <div class="col-sm-8 text-center">
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item {{ $current_page == 1 ? 'disabled' : '' }}">
+                                <a class="page-link page-icon m-2"
+                                    href="{{ route('renungan') }}?page={{ $current_page - 1 }}"><i
+                                        class="fa-solid fa-angle-left"></i></a>
                             </li>
-                        @endfor
-                        <li class="page-item @if($current_page == $total_page) disabled @endif">
-                            <a class="page-link page-icon m-2"
-                                href="{{ route('renungan') }}?page={{ $current_page + 1 }}"><i
-                                    class="fa-solid fa-angle-right"></i></a>
-                        </li>
-                    </ul>
-                </nav>
+                            @php
+                                $start_page = max(1, $current_page - 2);
+                                $end_page = min($total_page, $current_page + 2);
+
+                                if ($end_page - $start_page < 4) {
+                                    if ($start_page == 1) {
+                                        $end_page = min($total_page, $start_page + 4);
+                                    } elseif ($end_page == $total_page) {
+                                        $start_page = max(1, $end_page - 4);
+                                    }
+                                }
+                            @endphp
+                            @for ($i = $start_page; $i <= $end_page; $i++)
+                                <li class="page-item">
+                                    <a class="page-link m-2 {{ $i == $current_page ? 'active' : '' }}"
+                                        href="{{ route('renungan') }}?page={{ $i }}">{{ $i }}</a>
+                                </li>
+                            @endfor
+                            <li class="page-item {{ $current_page == $total_page ? 'disabled' : '' }}">
+                                <a class="page-link page-icon m-2"
+                                    href="{{ route('renungan') }}?page={{ $current_page + 1 }}"><i
+                                        class="fa-solid fa-angle-right"></i></a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </div>
     </section>
-    <!-- End news -->
 </div>

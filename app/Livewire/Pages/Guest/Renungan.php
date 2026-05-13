@@ -14,7 +14,7 @@ class Renungan extends Component
     public $total_page = 0;
     public $current_page = 1;
     public Collection $renungans;
-    
+
     private $record_per_page = 6;
     private $start = 0;
 
@@ -23,8 +23,8 @@ class Renungan extends Component
         $this->current_page = $request->query('page', 1);
         $total_record = RenunganModel::count();
         $this->start = ($this->current_page - 1) * $this->record_per_page;
-        $this->total_page = ceil($total_record / $this->record_per_page);
-        $this->renungans = RenunganModel::skip($this->start)->take($this->record_per_page)->get();
+        $this->total_page = ceil(($total_record / $this->record_per_page));
+        $this->renungans = RenunganModel::orderBy('id', 'desc')->skip($this->start)->take($this->record_per_page)->get();
     }
 
     public function render()

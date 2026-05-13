@@ -6,7 +6,6 @@ use App\Models\Agenda;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -57,7 +56,6 @@ class CreateAgenda extends Component
     ])]
     public $thumbnail;
 
-    #[On('save')]
     public function save()
     {
         $this->dispatch('update-rich-text');
@@ -91,7 +89,6 @@ class CreateAgenda extends Component
         } catch (ValidationException $ex) {
             throw $ex;
         } catch (Exception $ex) {
-            dd($ex->getMessage());
             $this->dispatch('agenda-saved', [
                 'title' => 'Error',
                 'message' => 'Gagal menyimpan data agenda'

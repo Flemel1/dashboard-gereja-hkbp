@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Jemaat extends Model
@@ -17,5 +19,11 @@ class Jemaat extends Model
         'jenis_kelamin',
         'tanggal_lahir',
         'no_telepon',
+        'wilayah_id'
     ];
+
+    public function wilayah(): BelongsTo
+    {
+        return $this->belongsTo(Wilayah::class);
+    }
 }

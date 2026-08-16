@@ -1,4 +1,0 @@
-Fitur:
-Data jemaat (kelahiran, kematian, pernikahan, baptis, sidi, ulang tahun), 
-Visualisasi:
-kehadiran jemaat tiap minggu & tahun
